@@ -1,0 +1,26 @@
+# Nixpacks Configuration for Elite Forex Pro
+[providers]
+php = "8.2"
+
+[build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction",
+    "php artisan config:cache",
+    "php artisan route:cache",
+    "php artisan view:cache"
+]
+
+[start]
+cmd = "chmod +x start.sh && ./start.sh"
+
+[phases.setup]
+nixPkgs = ["php82", "php82Packages.composer", "nodejs_18"]
+
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader --no-interaction"
+]
+
+[variables]
+PHP_VERSION = "8.2"
+COMPOSER_ALLOW_SUPERUSER = "1"

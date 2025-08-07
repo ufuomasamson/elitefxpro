@@ -1,8 +1,8 @@
 {
-    "name": "crypto-broker/platform",
+    "name": "eliteforexpro/platform",
     "type": "project",
-    "description": "Crypto Broker Platform built with Laravel",
-    "keywords": ["laravel", "crypto", "broker", "trading"],
+    "description": "Elite Forex Pro - Professional Cryptocurrency Trading Platform",
+    "keywords": ["laravel", "cryptocurrency", "trading", "forex", "elite", "platform"],
     "license": "MIT",
     "require": {
         "php": "^8.1",
@@ -49,6 +49,15 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "post-install-cmd": [
+            "@php artisan clear-compiled",
+            "@php artisan optimize"
+        ],
+        "railway-build": [
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan view:cache"
         ]
     },
     "extra": {
