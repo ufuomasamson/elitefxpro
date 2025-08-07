@@ -1,0 +1,17 @@
+# Railway ignore file
+node_modules/
+.git/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+tests/
+storage/logs/
+storage/app/public/
+bootstrap/cache/
+vendor/
+!vendor/.gitkeep

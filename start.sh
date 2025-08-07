@@ -38,9 +38,9 @@ php artisan storage:link --force --no-interaction 2>/dev/null || echo "Storage l
 
 # Set proper file permissions for Railway
 echo "🔒 Setting file permissions..."
-find storage -type f -exec chmod 644 {} \;
-find storage -type d -exec chmod 755 {} \;
-chmod -R 755 bootstrap/cache/
+find storage -type f -exec chmod 644 {} \; 2>/dev/null || true
+find storage -type d -exec chmod 755 {} \; 2>/dev/null || true
+chmod -R 755 bootstrap/cache/ 2>/dev/null || true
 
 # Clear any existing caches that might cause issues
 echo "🧹 Clearing temporary caches..."
@@ -73,4 +73,4 @@ echo "🚀 Application will be available shortly!"
 echo ""
 
 # Start Laravel development server for Railway
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8000} --no-interaction
+php artisan serve --host=0.0.0.0 --port=${PORT:-8000} --no-interaction
