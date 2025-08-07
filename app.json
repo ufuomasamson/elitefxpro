@@ -1,0 +1,79 @@
+{
+  "name": "Elite Forex Pro",
+  "description": "Professional Cryptocurrency Trading Platform built with Laravel",
+  "keywords": ["laravel", "php", "cryptocurrency", "trading", "mysql"],
+  "logo": "https://raw.githubusercontent.com/ufuomasamson/elitepro/main/public/images/logo.png",
+  "success_url": "/",
+  "website": "https://github.com/ufuomasamson/elitepro",
+  "repository": "https://github.com/ufuomasamson/elitepro",
+  "stack": "heroku-22",
+  "buildpacks": [
+    {
+      "url": "heroku/php"
+    }
+  ],
+  "env": {
+    "APP_NAME": {
+      "description": "Application name",
+      "value": "Elite Forex Pro"
+    },
+    "APP_ENV": {
+      "description": "Application environment",
+      "value": "production"
+    },
+    "APP_DEBUG": {
+      "description": "Debug mode (should be false in production)",
+      "value": "false"
+    },
+    "APP_KEY": {
+      "description": "Laravel application key (generate with: php artisan key:generate)",
+      "generator": "secret"
+    },
+    "DB_CONNECTION": {
+      "description": "Database connection type",
+      "value": "mysql"
+    },
+    "MAIL_MAILER": {
+      "description": "Mail driver",
+      "value": "smtp"
+    },
+    "MAIL_HOST": {
+      "description": "SMTP host",
+      "value": "smtp.gmail.com"
+    },
+    "MAIL_PORT": {
+      "description": "SMTP port",
+      "value": "587"
+    },
+    "MAIL_ENCRYPTION": {
+      "description": "Mail encryption",
+      "value": "tls"
+    },
+    "MAIL_FROM_ADDRESS": {
+      "description": "From email address",
+      "value": "noreply@eliteforexpro.com"
+    },
+    "MAIL_FROM_NAME": {
+      "description": "From name",
+      "value": "Elite Forex Pro"
+    },
+    "SESSION_DRIVER": {
+      "description": "Session driver",
+      "value": "database"
+    },
+    "CACHE_DRIVER": {
+      "description": "Cache driver",
+      "value": "database"
+    },
+    "QUEUE_CONNECTION": {
+      "description": "Queue connection",
+      "value": "database"
+    }
+  },
+  "addons": [
+    "jawsdb:kitefin"
+  ],
+  "scripts": {
+    "postdeploy": "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+  }
+}
