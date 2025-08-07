@@ -78,8 +78,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/ufuomasamson/elitepro.git
-   cd elitepro
+   git clone https://github.com/ufuomasamson/elitefxpro.git
+   cd elitefxpro
    ```
 
 2. **Install dependencies**
