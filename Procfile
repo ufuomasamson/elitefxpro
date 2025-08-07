@@ -1,1 +1,2 @@
-web: vendor/bin/heroku-php-apache2 public/
+web: chmod +x start.sh && ./start.sh
+release: php artisan migrate --force && php artisan db:seed --class=AdminUserSeeder --force
