@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧪 Local Registration Test</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .test-item { margin: 20px 0; padding: 15px; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🧪 TradeTrust Local Test Suite</h1>
+    
+    <div class="test-item info">
+        <h3>📋 Pre-Deployment Verification</h3>
+        <p>Testing registration system locally before deployment</p>
+    </div>
+    
+    <div class="test-item">
+        <h3>✅ Database Status</h3>
+        <?php
+        try {
+            $pdo = new PDO('mysql:host=127.0.0.1;dbname=crypto_broker', 'root', '');
+            echo "<p style='color: green;'>✅ Database connected successfully</p>";
+            
+            // Check if users table exists and doesn't have verification columns
+            $stmt = $pdo->query("DESCRIBE users");
+            $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            echo "<p><strong>Users table columns:</strong></p><ul>";
+            foreach ($columns as $column) {
+                $color = (strpos($column, 'verification') !== false) ? 'red' : 'green';
+                echo "<li style='color: $color;'>$column</li>";
+            }
+            echo "</ul>";
+            
+            if (!in_array('verification_code', $columns)) {
+                echo "<p style='color: green;'>✅ Email verification columns successfully removed</p>";
+            } else {
+                echo "<p style='color: red;'>❌ Email verification columns still exist</p>";
+            }
+            
+        } catch (Exception $e) {
+            echo "<p style='color: red;'>❌ Database error: " . $e->getMessage() . "</p>";
+        }
+        ?>
+    </div>
+    
+    <div class="test-item">
+        <h3>🌐 Server Status</h3>
+        <p>Laravel dev server: <a href="http://127.0.0.1:8001" target="_blank">http://127.0.0.1:8001</a></p>
+        <p>Registration page: <a href="http://127.0.0.1:8001/register" target="_blank">http://127.0.0.1:8001/register</a></p>
+        <p>Login page: <a href="http://127.0.0.1:8001/login" target="_blank">http://127.0.0.1:8001/login</a></p>
+        <p>API test: <a href="http://127.0.0.1:8001/test" target="_blank">http://127.0.0.1:8001/test</a></p>
+    </div>
+    
+    <div class="test-item">
+        <h3>🧪 Quick Tests</h3>
+        <button class="btn-primary" onclick="testRegistration()">Test Registration</button>
+        <button class="btn-success" onclick="testLogin()">Test Login</button>
+        <div id="test-results"></div>
+    </div>
+    
+    <script>
+        function testRegistration() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'http://127.0.0.1:8001/register';
+            form.target = '_blank';
+            
+            const fields = {
+                '_token': '{{ csrf_token() }}',
+                'name': 'Test User ' + Date.now(),
+                'email': 'test' + Date.now() + '@example.com',
+                'password': 'password123',
+                'password_confirmation': 'password123'
+            };
+            
+            Object.keys(fields).forEach(key => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            document.getElementById('test-results').innerHTML = 
+                '<p style="color: blue;">🚀 Registration test submitted - check new window</p>';
+        }
+        
+        function testLogin() {
+            window.open('http://127.0.0.1:8001/login', '_blank');
+        }
+    </script>
+    
+    <div class="test-item success">
+        <h3>✅ Ready for Deployment</h3>
+        <p>Once local tests pass, you can:</p>
+        <ul>
+            <li>✅ Update .env for production database</li>
+            <li>✅ Set APP_ENV=production and APP_DEBUG=false</li>
+            <li>✅ Create deployment package</li>
+            <li>✅ Upload to cPanel</li>
+        </ul>
+    </div>
+    
+</body>
+</html>

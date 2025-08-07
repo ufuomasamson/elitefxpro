@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Approval System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold mb-4">Test Deposit Approval</h2>
+        
+        <div class="space-y-4">
+            <button onclick="testApproval()" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Test Approve Deposit ID 2
+            </button>
+            
+            <a href="http://127.0.0.1:8000/admin/deposits" class="block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Go to Admin Deposits
+            </a>
+            
+            <a href="http://127.0.0.1:8000/login" class="block text-center bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                Login as Admin
+            </a>
+        </div>
+        
+        <div id="result" class="mt-4"></div>
+    </div>
+    
+    <script>
+        function testApproval() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="text-blue-600">Testing approval...</div>';
+            
+            // Test direct POST to approval endpoint
+            fetch('/admin/deposits/2/approve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                result.innerHTML = '<div class="text-green-600">Result: ' + JSON.stringify(data) + '</div>';
+            })
+            .catch(error => {
+                result.innerHTML = '<div class="text-red-600">Error: ' + error.message + '</div>';
+            });
+        }
+    </script>
+</body>
+</html>

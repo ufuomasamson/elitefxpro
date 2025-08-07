@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Withdrawal Verification Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Withdrawal Verification Test</h1>
+    
+    <div class="info">
+        <h2>✅ Setup Complete</h2>
+        <p>User: <strong>Sarah John (ID: 11)</strong></p>
+        <p>Email: <strong>sarahjohn34@gmail.com</strong></p>
+        <p>Verification Status: <strong>AML/KYC Required</strong></p>
+        <p>Verification Code: <strong>AML12345</strong></p>
+    </div>
+
+    <div class="success">
+        <h2>🎯 Test Instructions</h2>
+        <ol>
+            <li>Login as Sarah John (sarahjohn34@gmail.com)</li>
+            <li>Navigate to <strong>/withdrawal</strong> page</li>
+            <li>Select a cryptocurrency (USDT recommended - has 4,277.278 balance)</li>
+            <li>Enter amount (e.g., 100)</li>
+            <li>Enter a wallet address (e.g., <code>1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</code>)</li>
+            <li>Click <strong>"Submit Withdrawal Request"</strong></li>
+            <li><strong>VERIFICATION MODAL SHOULD APPEAR!</strong></li>
+            <li>Enter verification code: <strong>AML12345</strong></li>
+            <li>Click "Verify Code"</li>
+            <li>Withdrawal should be processed successfully</li>
+        </ol>
+    </div>
+
+    <div class="error">
+        <h2>🔧 Technical Details</h2>
+        <pre>
+Routes Available:
+• GET /withdrawal → withdrawal.index (shows page)
+• POST /withdrawal/submit → WithdrawalController@store (AJAX)
+• POST /withdrawal/verify-code → WithdrawalController@verifyCode (AJAX)
+
+JavaScript Logic:
+• Form submits via AJAX to /withdrawal/submit
+• If verification required, shows modal
+• Modal submits to /withdrawal/verify-code
+• Processes verification and either shows next step or completes
+
+User Wallets Available:
+• USDT: 4,277.278 (best for testing)
+• BTC: 1,000.000
+• DOT: 200.000
+        </pre>
+    </div>
+
+    <p><strong>🚀 Go test the withdrawal verification modal now!</strong></p>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems Test - Elite Forex Pro</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .test-section { border: 2px solid #ddd; border-radius: 10px; margin: 20px 0; padding: 20px; }
+        .success { border-color: #28a745; background-color: #f8fff9; }
+        .error { border-color: #dc3545; background-color: #fff8f8; }
+        .loading { border-color: #ffc107; background-color: #fffef0; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .result.success { background-color: #d4edda; color: #155724; }
+        .result.error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        #chatTest { max-height: 300px; overflow-y: auto; }
+        .message { padding: 8px; margin: 5px 0; border-radius: 5px; }
+        .user-msg { background-color: #e3f2fd; text-align: left; }
+        .admin-msg { background-color: #fff3e0; text-align: right; }
+        input[type="text"] { padding: 8px; margin: 5px; width: 300px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Elite Forex Pro Systems Test Dashboard</h1>
+    <p>This page tests the recently fixed systems: Real-time Profit API and Live Chat</p>
+
+    <!-- Real-time Profit Test -->
+    <div class="test-section loading" id="profitTestSection">
+        <h2>📊 Real-time Profit System Test</h2>
+        <p>Testing the /api/realtime-profit endpoint that was returning 404 errors</p>
+        
+        <button onclick="testRealTimeProfit()" class="btn-primary">Test Profit API</button>
+        <button onclick="startProfitPolling()" class="btn-success">Start 10s Polling</button>
+        <button onclick="stopProfitPolling()" class="btn-warning">Stop Polling</button>
+        
+        <div id="profitResults">
+            <div class="result">Click "Test Profit API" to check the endpoint</div>
+        </div>
+        
+        <div id="profitData" style="display: none;">
+            <h4>Current Profit Data:</h4>
+            <div id="profitDisplay"></div>
+        </div>
+    </div>
+
+    <!-- Live Chat Test -->
+    <div class="test-section loading" id="chatTestSection">
+        <h2>💬 Live Chat System Test</h2>
+        <p>Testing user-admin messaging functionality</p>
+        
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="chatMessage" placeholder="Type a test message..." />
+            <button onclick="sendTestMessage()" class="btn-primary">Send Message</button>
+            <button onclick="loadMessages()" class="btn-success">Load Messages</button>
+            <button onclick="checkUnreadCount()" class="btn-warning">Check Unread</button>
+        </div>
+        
+        <div id="chatResults">
+            <div class="result">Test the chat system by sending a message</div>
+        </div>
+        
+        <div id="chatTest">
+            <h4>Chat Messages:</h4>
+            <div id="messagesDisplay"></div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="test-section" id="statusSection">
+        <h2>🎯 System Status Summary</h2>
+        <div id="systemStatus">
+            <div>📊 Real-time Profit API: <span id="profitStatus">Not tested</span></div>
+            <div>💬 User Chat System: <span id="chatStatus">Not tested</span></div>
+            <div>🔄 Auto Updates: <span id="pollingStatus">Stopped</span></div>
+        </div>
+    </div>
+
+    <script>
+        let profitPollingInterval = null;
+
+        // Real-time Profit Testing
+        async function testRealTimeProfit() {
+            const resultsDiv = document.getElementById('profitResults');
+            const section = document.getElementById('profitTestSection');
+            
+            resultsDiv.innerHTML = '<div class="result">🔄 Testing profit API...</div>';
+            
+            try {
+                const response = await fetch('/api/realtime-profit', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="result success">✅ Profit API Working!</div>
+                        <div class="result">Status: ${response.status}</div>
+                        <div class="result">Total Profit: €${data.total_profit || 0}</div>
+                        <div class="result">Holdings: ${data.holdings ? data.holdings.length : 0} cryptos</div>
+                    `;
+                    
+                    // Display detailed profit data
+                    const profitDataDiv = document.getElementById('profitData');
+                    const profitDisplayDiv = document.getElementById('profitDisplay');
+                    
+                    let holdingsHtml = '';
+                    if (data.holdings && data.holdings.length > 0) {
+                        holdingsHtml = '<ul>';
+                        data.holdings.forEach(holding => {
+                            const profitClass = holding.profit_loss >= 0 ? 'success' : 'error';
+                            holdingsHtml += `<li class="${profitClass}">${holding.symbol}: ${holding.amount} (P&L: €${holding.profit_loss})</li>`;
+                        });
+                        holdingsHtml += '</ul>';
+                    }
+                    
+                    profitDisplayDiv.innerHTML = `
+                        <div><strong>Total Profit:</strong> €${data.total_profit || 0}</div>
+                        <div><strong>Current Value:</strong> €${data.current_holdings_value || 0}</div>
+                        <div><strong>Wallet Balance:</strong> €${data.wallet_balance || 0}</div>
+                        <div><strong>Holdings:</strong></div>
+                        ${holdingsHtml}
+                    `;
+                    
+                    profitDataDiv.style.display = 'block';
+                    section.className = 'test-section success';
+                    document.getElementById('profitStatus').textContent = 'Working ✅';
+                    
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result error">❌ Profit API Failed!</div>
+                    <div class="result error">Error: ${error.message}</div>
+                `;
+                section.className = 'test-section error';
+                document.getElementById('profitStatus').textContent = 'Failed ❌';
+            }
+        }
+
+        function startProfitPolling() {
+            if (profitPollingInterval) {
+                clearInterval(profitPollingInterval);
+            }
+            
+            profitPollingInterval = setInterval(testRealTimeProfit, 10000);
+            document.getElementById('pollingStatus').textContent = 'Running (10s intervals) 🔄';
+            
+            // Initial test
+            testRealTimeProfit();
+        }
+
+        function stopProfitPolling() {
+            if (profitPollingInterval) {
+                clearInterval(profitPollingInterval);
+                profitPollingInterval = null;
+            }
+            document.getElementById('pollingStatus').textContent = 'Stopped ⏹️';
+        }
+
+        // Chat Testing
+        async function sendTestMessage() {
+            const messageInput = document.getElementById('chatMessage');
+            const message = messageInput.value.trim();
+            const resultsDiv = document.getElementById('chatResults');
+            const section = document.getElementById('chatTestSection');
+            
+            if (!message) {
+                resultsDiv.innerHTML = '<div class="result error">Please enter a message</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="result">🔄 Sending message...</div>';
+            
+            try {
+                const response = await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultsDiv.innerHTML = `
+                        <div class="result success">✅ Message sent successfully!</div>
+                        <div class="result">Message ID: ${data.message?.id || 'N/A'}</div>
+                    `;
+                    messageInput.value = '';
+                    section.className = 'test-section success';
+                    document.getElementById('chatStatus').textContent = 'Working ✅';
+                    
+                    // Auto-load messages after sending
+                    setTimeout(loadMessages, 500);
+                    
+                } else {
+                    throw new Error(data.message || 'Failed to send message');
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result error">❌ Failed to send message!</div>
+                    <div class="result error">Error: ${error.message}</div>
+                `;
+                section.className = 'test-section error';
+                document.getElementById('chatStatus').textContent = 'Failed ❌';
+            }
+        }
+
+        async function loadMessages() {
+            const messagesDiv = document.getElementById('messagesDisplay');
+            
+            messagesDiv.innerHTML = '<div>🔄 Loading messages...</div>';
+            
+            try {
+                const response = await fetch('/chat/messages', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const messages = data.messages || [];
+                    
+                    if (messages.length === 0) {
+                        messagesDiv.innerHTML = '<div>No messages yet</div>';
+                    } else {
+                        let messagesHtml = '';
+                        messages.forEach(msg => {
+                            const isUser = msg.sender_type === 'user';
+                            const time = new Date(msg.created_at).toLocaleTimeString();
+                            const sender = isUser ? '👤 You' : '👑 Admin';
+                            const messageClass = isUser ? 'user-msg' : 'admin-msg';
+                            
+                            messagesHtml += `
+                                <div class="message ${messageClass}">
+                                    <strong>${sender}</strong> (${time})<br>
+                                    ${msg.message}
+                                </div>
+                            `;
+                        });
+                        messagesDiv.innerHTML = messagesHtml;
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to load messages');
+                }
+                
+            } catch (error) {
+                messagesDiv.innerHTML = `<div class="error">❌ Error loading messages: ${error.message}</div>`;
+            }
+        }
+
+        async function checkUnreadCount() {
+            try {
+                const response = await fetch('/chat/unread-count', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const count = data.count || 0;
+                    document.getElementById('chatResults').innerHTML += 
+                        `<div class="result success">📬 Unread messages: ${count}</div>`;
+                } else {
+                    throw new Error(data.message || 'Failed to get unread count');
+                }
+                
+            } catch (error) {
+                document.getElementById('chatResults').innerHTML += 
+                    `<div class="result error">❌ Error getting unread count: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-load messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMessages();
+            
+            // Handle Enter key in chat input
+            document.getElementById('chatMessage').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendTestMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

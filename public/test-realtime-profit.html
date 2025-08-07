@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Profit Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .profit-card { 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            transition: all 0.3s ease;
+        }
+        .profit-positive { border-color: #28a745; background-color: #f8fff9; }
+        .profit-negative { border-color: #dc3545; background-color: #fff8f8; }
+        .profit-amount { font-size: 2em; font-weight: bold; margin: 10px 0; }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        .loading { color: #6c757d; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .holdings { margin-top: 20px; }
+        .holding-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 8px; 
+            border-bottom: 1px solid #eee; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Real-Time Profit Dashboard Test</h1>
+    
+    <div class="profit-card" id="profitCard">
+        <h3>Total Profits</h3>
+        <div class="profit-amount loading" id="profitAmount">Loading...</div>
+        <div id="profitStatus">Initializing...</div>
+    </div>
+    
+    <div class="holdings" id="holdingsSection" style="display: none;">
+        <h3>Current Holdings</h3>
+        <div id="holdingsList"></div>
+    </div>
+    
+    <div id="debugInfo" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+        <h4>Debug Information</h4>
+        <div id="lastUpdate">No updates yet</div>
+        <div id="apiResponse">No API calls made yet</div>
+    </div>
+
+    <script>
+        let updateCount = 0;
+        let profitHistory = [];
+
+        async function fetchRealTimeProfit() {
+            try {
+                updateCount++;
+                document.getElementById('lastUpdate').innerHTML = `Update #${updateCount} at ${new Date().toLocaleTimeString()}`;
+                
+                const response = await fetch('/api/realtime-profit', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                document.getElementById('apiResponse').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                updateProfitDisplay(data);
+                
+                // Show success status
+                document.getElementById('profitStatus').innerHTML = `
+                    <div class="status success">
+                        ✅ Updated ${new Date().toLocaleTimeString()}
+                        <br>Holdings: ${data.holdings?.length || 0} | Wallet: €${parseFloat(data.wallet_balance || 0).toFixed(2)}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error fetching real-time profit:', error);
+                
+                document.getElementById('profitStatus').innerHTML = `
+                    <div class="status error">
+                        ❌ Error: ${error.message}
+                        <br>Last attempt: ${new Date().toLocaleTimeString()}
+                    </div>
+                `;
+                
+                document.getElementById('apiResponse').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function updateProfitDisplay(data) {
+            const profitAmount = parseFloat(data.total_profit || 0);
+            const profitCard = document.getElementById('profitCard');
+            const profitAmountEl = document.getElementById('profitAmount');
+            
+            // Store profit history
+            profitHistory.push({
+                time: new Date(),
+                profit: profitAmount
+            });
+            
+            // Keep only last 10 updates
+            if (profitHistory.length > 10) {
+                profitHistory.shift();
+            }
+            
+            // Update amount display
+            profitAmountEl.textContent = `€${profitAmount.toFixed(2)}`;
+            
+            // Update styling based on profit/loss
+            profitCard.classList.remove('profit-positive', 'profit-negative');
+            profitAmountEl.classList.remove('positive', 'negative', 'loading');
+            
+            if (profitAmount > 0) {
+                profitCard.classList.add('profit-positive');
+                profitAmountEl.classList.add('positive');
+            } else if (profitAmount < 0) {
+                profitCard.classList.add('profit-negative');
+                profitAmountEl.classList.add('negative');
+            }
+            
+            // Update holdings display
+            if (data.holdings && data.holdings.length > 0) {
+                const holdingsSection = document.getElementById('holdingsSection');
+                const holdingsList = document.getElementById('holdingsList');
+                
+                let holdingsHTML = '';
+                data.holdings.forEach(holding => {
+                    const profitLoss = parseFloat(holding.profit_loss || 0);
+                    const profitClass = profitLoss >= 0 ? 'positive' : 'negative';
+                    const profitIcon = profitLoss >= 0 ? '📈' : '📉';
+                    
+                    holdingsHTML += `
+                        <div class="holding-item">
+                            <span>${holding.symbol} (${holding.amount})</span>
+                            <span class="${profitClass}">
+                                ${profitIcon} €${profitLoss.toFixed(2)} (${holding.profit_percentage}%)
+                            </span>
+                        </div>
+                    `;
+                });
+                
+                holdingsList.innerHTML = holdingsHTML;
+                holdingsSection.style.display = 'block';
+            }
+            
+            // Show profit trend
+            if (profitHistory.length > 1) {
+                const previousProfit = profitHistory[profitHistory.length - 2].profit;
+                const change = profitAmount - previousProfit;
+                const trendIcon = change > 0 ? '↗️' : change < 0 ? '↘️' : '➡️';
+                
+                document.getElementById('profitStatus').innerHTML += `
+                    <br><small>Trend: ${trendIcon} €${change.toFixed(2)} from last update</small>
+                `;
+            }
+        }
+
+        // Start real-time updates
+        console.log('🚀 Starting real-time profit tracking...');
+        
+        // Initial fetch
+        fetchRealTimeProfit();
+        
+        // Update every 10 seconds
+        setInterval(fetchRealTimeProfit, 10000);
+        
+        console.log('✅ Real-time profit tracking initialized');
+    </script>
+</body>
+</html>
