@@ -180,19 +180,19 @@ CREATE TABLE user_wallets (
 
 ---
 
-## 🛠️ **RAILWAY DATABASE CREATION COMMANDS**
+## 🛠️ **RENDER DATABASE CREATION COMMANDS**
 
 ### **Method 1: Automatic (Recommended)**
 ```bash
-# This happens automatically when you deploy to Railway
+# This happens automatically when you deploy to Render
 # The start.sh script runs these commands:
 php artisan migrate --force --no-interaction
 php artisan db:seed --class=AdminUserSeeder --force --no-interaction
 ```
 
-### **Method 2: Manual via Railway Console**
+### **Method 2: Manual via Render Console**
 ```bash
-# Access Railway Console and run:
+# Access Render Console and run:
 cd /app
 
 # Create all tables
@@ -222,7 +222,7 @@ exit
 
 ### **Check All Tables Created:**
 ```bash
-# Via Railway Console
+# Via Render Console
 php artisan tinker
 DB::select('SHOW TABLES');
 
@@ -272,4 +272,4 @@ After successful database creation, you'll have:
 
 ---
 
-**🚀 Your Railway deployment will automatically create this entire database structure!**
+**🚀 Your Render deployment will automatically create this entire database structure!**

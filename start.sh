@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Elite Forex Pro Railway Startup Script
-echo "🚀 Elite Forex Pro - Starting Railway Deployment"
-echo "=================================================="
+# Elite Forex Pro Render Startup Script
+echo "🚀 Elite Forex Pro - Starting Render Deployment"
+echo "================================================="
 
 # Set production environment
 export APP_ENV=production
@@ -36,7 +36,7 @@ php artisan db:seed --class=AdminUserSeeder --force --no-interaction 2>/dev/null
 echo "🔗 Creating storage symlink..."
 php artisan storage:link --force --no-interaction 2>/dev/null || echo "Storage link already exists"
 
-# Set proper file permissions for Railway
+# Set proper file permissions for Render
 echo "🔒 Setting file permissions..."
 find storage -type f -exec chmod 644 {} \; 2>/dev/null || true
 find storage -type d -exec chmod 755 {} \; 2>/dev/null || true
@@ -72,5 +72,5 @@ echo "🌐 Starting Elite Forex Pro server on port ${PORT:-8000}..."
 echo "🚀 Application will be available shortly!"
 echo ""
 
-# Start Laravel development server for Railway
+# Start Laravel development server for Render
 php artisan serve --host=0.0.0.0 --port=${PORT:-8000} --no-interaction
