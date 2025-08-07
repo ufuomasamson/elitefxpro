@@ -13,15 +13,8 @@
 
         <!-- Tailwind CSS -->
         <script src="https://cdn.tailwindcss.com"></script>
-        
-        <!-- Custom CSS -->
-        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-        
         <!-- Alpine.js -->
         <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-        
-        <!-- Custom JavaScript -->
-        <script src="{{ asset('js/app.js') }}"></script>
         
         <!-- Custom Styles - Updated Cache Buster 2025-07-31-v2 -->
         <style>
